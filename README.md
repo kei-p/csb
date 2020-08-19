@@ -59,6 +59,32 @@ csv.build
 # 2019/06/02,category3,content2,,dummy
 ```
 
+### Processing each item
+
+```ruby
+csv = Csb::Builder.new
+csv.cols.add('Update date') { |r| l(r.updated_at.to_date) }
+csv.cols.add('Categories') { |r| r.categories.pluck(:name).join(' ') }
+csv.cols.add('Content', :content)
+csv.cols.add('Empty')
+csv.cols.add('Static', 'dummy')
+
+csv.append_headers
+
+Item.find_each do |item|
+  # decorate item
+  decorated_item = item.decorate
+  csv.append_item(decorated_item)
+end
+
+csv.output
+
+# =>
+# Update date,Categories,Content,Empty,Static
+# 2019/06/01,category1 category2,content1,,dummy
+# 2019/06/02,category3,content2,,dummy
+```
+
 ### Testing
 
 ```ruby
